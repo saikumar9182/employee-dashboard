@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="height:10vh;width:90%;margin:auto;" class="header d-flex justify-content-sm-between align-items-center mb-3">
-      <h1>Employee Dashboard</h1>
+      <h1 style="cursor:pointer" @click.prevent="FetchEmployees('refresh')">Employee Dashboard</h1>
       <div class="d-flex">
       <div class="filter-wrapper">
         <span><i class="ri-filter-line"></i></span>
@@ -141,9 +141,6 @@ export default {
     sortBy() {
       this.FetchEmployees();
     },
-    countryFilter() {
-      console.log(this.countryFilter);
-    },
   },
   computed: {
     EmployeesData() {
@@ -153,6 +150,7 @@ export default {
   },
   methods: {
     DateFormatter(birthday) {
+      //this method extracts the date
       let birthdate = "";
       for (let i = 0; i < birthday.length; i++) {
         if (birthday[i] === "T") break;
@@ -165,25 +163,28 @@ export default {
       vm.page = payload.pageNo;
       vm.FetchEmployees();
     },
-    FetchEmployees() {
-      console.log("are we here", this.sortBy);
+    FetchEmployees(arg) {
       const vm = this;
       const url = "https://620dfdda20ac3a4eedcf5a52.mockapi.io/api/employee";
       const params = { page: vm.page, limit: vm.limit};
       if(vm.sortBy) {
         params.sortBy = vm.sortBy;
       }
+      if(arg==='refresh') {
+        params.page=1;
+      }
+      if(arg!=='refresh') {
       if(vm.countryFilter) {
+        params.page=1;
         params.country = vm.countryFilter;
       }
       if(vm.nameFilter) {
+        params.page=1;
         params.name = vm.nameFilter;
       }
-      // console.log(params);
+      }
       axios.get(url, { params }).then((response) => {
-        console.log(response.data);
         vm.Employees = response.data;
-        // vm.totalEmployees = response.data.length;
       });
     },
   },
@@ -192,7 +193,6 @@ export default {
     const url = "https://620dfdda20ac3a4eedcf5a52.mockapi.io/api/employee";
     axios.get(url).then((response) => {
       vm.totalEmployees = response.data.length;
-      console.log(response.data);
       _.each(response.data, (employee) =>{
         vm.countries.push(employee.country);
         vm.names.push(employee.name);
